@@ -16,6 +16,7 @@ If this project has helped you out, please support us with a star 🌟.
 ## Features
 
 - Log networks requests on iOS and Android
+- Custom log networks options for webview
 - View network requests made with in app viewer
 - Debug network requests on release builds
 - Individually view request/response headers and body
@@ -73,6 +74,64 @@ import { startNetworkLogging } from 'react-native-network-logger';
 
 startNetworkLogging();
 AppRegistry.registerComponent('App', () => App);
+```
+
+### Start and Display Webview Logging
+
+Add the network interceptor to your WebView component using the following steps:
+
+```ts
+import {
+  getWebviewNetworkInterceptor,
+  getWebviewRequest,
+  NetworkRequestInfo,
+} from 'react-native-network-logger';
+import NetworkLogger from 'react-native-network-logger';
+
+const MyWebComponent = () => {
+
+  const [isLoggerVisible, setLoggerVisible] = useState<boolean>(false)
+  const [webviewRequests, setWebviewRequests] = useState<NetworkRequestInfo[]([]);
+
+  // optional
+  const ignoredUrls = ['google-analytics.com'];
+
+  const handleMessage = (event: WebViewMessageEvent) => {
+    const data = JSON.parse(event.nativeEvent.data);
+    if (data.type === 'xhr' || data.type === 'fetch') {
+      setWebviewRequests((prevRequests) => [
+        getWebviewRequest(data),
+        ...prevRequests,
+      ]);
+    }
+  };
+
+  return (
+    <Fragment>
+      {/* NetworkLogger can be rendered anywhere in your app
+          Example shows a simple conditional render, but you can:
+          - Render it in a Modal
+          - Make it a separate screen in your navigation
+          - Display it as a floating overlay
+          - Or any other UI pattern that fits your app */}
+      {isLoggerVisible ? (
+        <NetworkLogger
+          webviewRequests={webviewRequests}
+          onClearWebviewRequests={() => setWebviewRequests([])}
+        />
+      ) : null}
+      <WebView
+        injectedJavaScriptBeforeContentLoad={getWebviewNetworkInterceptor({
+          ignoredUrls,
+        })}
+        onMessage={handleMessage}
+        source={{ uri: 'https://reactnative.dev/' }}
+        style={{ flex: 1 }}
+        javaScriptEnabled={true}
+      />
+    </Fragment>
+  );
+};
 ```
 
 ### Display Requests and Responses
