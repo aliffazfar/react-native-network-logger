@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import {
   View,
   Text,
@@ -111,6 +111,12 @@ const RequestDetails: React.FC<Props> = ({ request, onClose }) => {
     <View style={styles.container}>
       <ResultItem request={request} style={styles.info} />
       <ScrollView style={styles.scrollView} nestedScrollEnabled>
+        {request?.webviewUrl ? (
+          <Fragment>
+            <Header shareContent={request?.webviewUrl}>Webview Page</Header>
+            <LargeText>{request?.webviewUrl}</LargeText>
+          </Fragment>
+        ) : null}
         <Headers title="Request Headers" headers={request.requestHeaders} />
         <Header shareContent={requestBody}>Request Body</Header>
         <LargeText>{requestBody}</LargeText>

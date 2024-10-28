@@ -1,5 +1,6 @@
 import logger from './loggerSingleton';
-import { StartNetworkLoggingOptions } from './types';
+import { NetworkRequestInfoRow, StartNetworkLoggingOptions } from './types';
+import NetworkRequestInfoClass from './NetworkRequestInfo';
 
 export { default } from './components/NetworkLogger';
 
@@ -18,3 +19,12 @@ export const clearRequests = () => logger.clearRequests();
 export { getBackHandler } from './backHandler';
 
 export type { ThemeName, Theme } from './theme';
+
+export { NetworkRequestInfoClass as NetworkRequestInfo };
+
+export type { NetworkRequestInfoRow };
+
+export {
+  getWebviewNetworkInterceptor,
+  getWebviewRequest,
+} from './utils/webview';

@@ -25,6 +25,7 @@ export default class NetworkRequestInfo {
   endTime: number = 0;
   gqlOperation?: string;
   updatedAt: number = 0;
+  webviewUrl: string = '';
 
   constructor(id: string, type: string, method: RequestMethod, url: string) {
     this.id = id;

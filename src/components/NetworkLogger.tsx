@@ -16,6 +16,8 @@ interface Props {
   sort?: 'asc' | 'desc';
   compact?: boolean;
   maxRows?: number;
+  webviewRequests?: NetworkRequestInfo[];
+  onClearWebviewRequests?: () => void;
 }
 
 const sortRequests = (requests: NetworkRequestInfo[], sort: 'asc' | 'desc') => {
@@ -30,8 +32,10 @@ const NetworkLogger: React.FC<Props> = ({
   sort = 'desc',
   compact = false,
   maxRows,
+  webviewRequests,
+  onClearWebviewRequests,
 }) => {
-  const [requests, setRequests] = useState(logger.getRequests());
+  const [requests, setRequests] = useState<NetworkRequestInfo[]>([]);
   const [request, setRequest] = useState<NetworkRequestInfo>();
   const [showDetails, _setShowDetails] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -48,6 +52,15 @@ const NetworkLogger: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
+    if (webviewRequests) {
+      setRequests(webviewRequests);
+    } else {
+      setRequests(logger.getRequests());
+    }
+  }, [webviewRequests]);
+
+  useEffect(() => {
+    if (webviewRequests) return;
     logger.setCallback((updatedRequests: NetworkRequestInfo[]) => {
       setRequests([...updatedRequests]);
     });
@@ -81,7 +94,9 @@ const NetworkLogger: React.FC<Props> = ({
   }, [showDetails, setShowDetails]);
 
   const getHar = useCallback(async () => {
-    const har = await createHar(logger.getRequests());
+    const har = await createHar(
+      webviewRequests ? webviewRequests : logger.getRequests()
+    );
     await Share.share({
       message: JSON.stringify(har),
     });
@@ -101,7 +116,9 @@ const NetworkLogger: React.FC<Props> = ({
       {
         text: 'Clear Logs',
         onPress: async () => {
-          logger.clearRequests();
+          onClearWebviewRequests
+            ? onClearWebviewRequests()
+            : logger.clearRequests();
         },
       },
       {
